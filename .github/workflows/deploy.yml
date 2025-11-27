@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://lwyjdmgajwqoohgntnbp.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3eWpkbWdhandxb29oZ250bmJwIiwicm9zZSI6ImFub24iLCJpYXQiOjE3NjQxNDI3NTEsImV4cCI6MjA3OTcxODc1MX0.ApHk9UDTDQ7Ot3qQGOafs-T7URqgcxzHG1_TFRbOmXM' }}
+          VITE_SUPABASE_FUNCTION_URL: ${{ secrets.VITE_SUPABASE_FUNCTION_URL || 'https://lwyjdmgajwqoohgntnbp.supabase.co/functions/v1' }}
+          VITE_PADDLE_CLIENT_TOKEN: ${{ secrets.VITE_PADDLE_CLIENT_TOKEN || 'test_e69daab4cd9113bad2c5a8823e9' }}
+          VITE_PADDLE_PRICE_YEAR: ${{ secrets.VITE_PADDLE_PRICE_YEAR || 'pri_01kazzyn4sx92kwsgks4svqw8d' }}
+          VITE_PADDLE_PRICE_MONTH: ${{ secrets.VITE_PADDLE_PRICE_MONTH || 'pri_01kazzv4rf9wqe3c5vtp5xt705' }}
+          VITE_PADDLE_ENV: ${{ secrets.VITE_PADDLE_ENV || 'sandbox' }}
+        run: npm run build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          cname: ''
